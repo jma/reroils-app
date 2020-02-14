@@ -93,8 +93,24 @@ ENABLE_WARNINGS=${ENABLE_WARNINGS:=true}
 msg "PROGRAM: ${PROGRAM}"
 
 # PIPENV is a mandatory condition to launch this program!
-IS_VIRTUALENV=`python -c "import sys; print(1) if hasattr(sys, 'real_prefix') else print(0)"`
-if [ "${IS_VIRTUALENV}" != 1 ]; then
+check_virtualenv() {
+  # real_prefix exists: no doubt, you're in a Virtual Environment!
+  REAL_PREFIX=`python -c "import sys; print(1) if hasattr(sys, 'real_prefix') else print(0)"`
+  if [ "${REAL_PREFIX}" == 1 ]; then
+    return 1
+  fi
+  # Sometimes (in Docker i.e.), real_prefix doesn't exist. We found another way
+  # sys.base_prefix should be different from sys.prefix
+  PREFIX_DIFFERENT=`python -c "import sys; print(sys.base_prefix != sys.prefix)"`
+  if [ "${PREFIX_DIFFERENT}" == "True" ]; then
+    return 1
+  fi
+  return 0
+}
+
+check_virtualenv
+is_virtualenv="$?"
+if [ "${is_virtualenv}" != "1" ]; then
   error_msg+exit "Error - Launch this script via pipenv command:\n\tpipenv run setup"
 fi
 
@@ -171,6 +187,7 @@ eval ${PREFIX} invenio index queue purge delete
 set -e
 eval ${PREFIX} invenio index destroy --force --yes-i-know
 # Override index init to load templates before mapping
+# TODO: check if invenio index init --force works (to delete utils init --force)
 info_msg "Override index init to load templates before mapping"
 eval ${PREFIX} invenio utils init --force
 # eval ${PREFIX} invenio index init --force
