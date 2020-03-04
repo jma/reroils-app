@@ -149,8 +149,8 @@ class IlsRecordIndexer(RecordIndexer):
             '_index': index,
             '_type': doc_type,
             '_id': str(record.id),
-            '_version': record.revision_id,
-            '_version_type': self._version_type,
+            'version': record.revision_id,
+            'version_type': self._version_type,
             '_source': body
         }
         action.update(arguments)

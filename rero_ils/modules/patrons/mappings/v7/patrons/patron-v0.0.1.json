@@ -1,0 +1,97 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "max_result_window": 20000
+  },
+  "mappings": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "keyword"
+        },
+        "pid": {
+          "type": "keyword"
+        },
+        "first_name": {
+          "type": "text",
+          "analyzer": "global_lowercase_asciifolding",
+          "copy_to": "first_name_sort"
+        },
+        "first_name_sort": {
+          "type": "keyword"
+        },
+        "last_name": {
+          "type": "text",
+          "analyzer": "global_lowercase_asciifolding",
+          "copy_to": "last_name_sort"
+        },
+        "last_name_sort": {
+          "type": "keyword"
+        },
+        "birth_date": {
+          "type": "date"
+        },
+        "email": {
+          "type": "keyword"
+        },
+        "street": {
+          "type": "text",
+          "analyzer": "global_lowercase_asciifolding"
+        },
+        "postal_code": {
+          "type": "keyword"
+        },
+        "city": {
+          "type": "text",
+          "analyzer": "global_lowercase_asciifolding"
+        },
+        "phone": {
+          "type": "text"
+        },
+        "patron_type": {
+          "properties": {
+            "pid": {
+              "type": "keyword"
+            }
+          }
+        },
+        "barcode": {
+          "type": "keyword"
+        },
+        "library": {
+          "properties": {
+            "pid": {
+              "type": "keyword"
+            }
+          }
+        },
+        "organisation": {
+          "properties": {
+            "pid": {
+              "type": "keyword"
+            }
+          }
+        },
+        "circulation_location_pid": {
+          "type": "text"
+        },
+        "roles": {
+          "type": "keyword"
+        },
+        "communication_channel": {
+          "type": "keyword"
+        },
+        "communication_language": {
+          "type": "keyword"
+        },
+        "_created": {
+          "type": "date"
+        },
+        "_updated": {
+          "type": "date"
+        }
+      }
+    }
+}

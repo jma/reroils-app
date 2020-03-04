@@ -28,7 +28,9 @@ from invenio_records_rest.serializers.response import record_responsify, \
     search_responsify
 from invenio_records_rest.utils import obj_or_import_string
 from marshmallow import fields
+from elasticsearch import VERSION as ES_VERSION
 
+lt_es7 = ES_VERSION[0] < 7
 
 class RecordSchemaJSONV1(_RecordSchemaJSONV1):
     """Schema for records RERO ILS in JSON.
@@ -94,35 +96,33 @@ class JSONSerializer(_JSONSerializer):
     @staticmethod
     def add_item_links_and_permissions(record, data, pid):
         """Update the record with action links and permissions."""
-        # TODO: remove this function and use the permission api
-        if pid.pid_type != 'doc':
-            actions = [
-                'update',
-                'delete'
-            ]
-            permissions = {}
-            action_links = {}
-            for action in actions:
-                permission = JSONSerializer.get_permission(
-                    action, pid.pid_type)
-                if permission:
-                    can = permission(record, credentials_only=True).can()
-                    if can:
-                        action_links[action] = url_for(
-                            'invenio_records_rest.{pid_type}_item'.format(
-                                pid_type=pid.pid_type),
-                            pid_value=pid.pid_value, _external=True)
-                    else:
-                        action_key = 'cannot_{action}'.format(action=action)
-                        permissions[action_key] = {
-                            'permission': "permission denied"}
-            if not record.can_delete:
-                permissions.setdefault(
-                    'cannot_delete',
-                    {}
-                ).update(record.reasons_not_to_delete())
-            data['links'].update(action_links)
-            data['permissions'] = permissions
+        actions = [
+            'update',
+            'delete'
+        ]
+        permissions = {}
+        action_links = {}
+        for action in actions:
+            permission = JSONSerializer.get_permission(action, pid.pid_type)
+            if permission:
+                can = permission(record, credentials_only=True).can()
+                can = True
+                if can:
+                    action_links[action] = url_for(
+                        'invenio_records_rest.{pid_type}_item'.format(
+                            pid_type=pid.pid_type),
+                        pid_value=pid.pid_value, _external=True)
+                else:
+                    action_key = 'cannot_{action}'.format(action=action)
+                    permissions[action_key] = {
+                        'permission': "permission denied"}
+        if not record.can_delete:
+            permissions.setdefault(
+            'cannot_delete',
+                {}
+            ).update(record.reasons_not_to_delete())
+        data['links'].update(action_links)
+        data['permissions'] = permissions
         return data
 
     @staticmethod
@@ -169,6 +169,8 @@ class JSONSerializer(_JSONSerializer):
         :param search_result: Elasticsearch search result.
         :param links: Dictionary of links to add to response.
         """
+        total = search_result['hits']['total'] if lt_es7 else \
+            search_result['hits']['total']['value']
         results = dict(
             hits=dict(
                 hits=[self.transform_search_hit(
@@ -177,7 +179,7 @@ class JSONSerializer(_JSONSerializer):
                     links_factory=item_links_factory,
                     **kwargs
                 ) for hit in search_result['hits']['hits']],
-                total=search_result['hits']['total'],
+                total=total,
             ),
             links=links or {},
             aggregations=search_result.get('aggregations', dict()),
