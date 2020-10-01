@@ -76,6 +76,16 @@
       "barcode": {
         "type": "keyword"
       },
+      "patron_notes": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "content": {
+            "type": "text"
+          }
+        }
+      },
       "library": {
         "properties": {
           "pid": {
