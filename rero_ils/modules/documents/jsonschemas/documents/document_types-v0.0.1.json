@@ -51,7 +51,7 @@
         }
       ],
       "templateOptions": {
-        "cssClass": "editor-max-width editor-title"
+        "cssClass": "w-md-50"
       }
     }
   }

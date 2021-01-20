@@ -25,9 +25,11 @@
             "bf:Language"
           ],
           "form": {
-            "wrappers": [
-              "hide"
-            ],
+            "templateOptions": {
+              "wrappers": [
+                "hide"
+              ]
+            },
             "options": [
               {
                 "label": "Language",
@@ -42,13 +44,8 @@
       },
       "form": {
         "templateOptions": {
-          "cssClass": "row"
+          "containerCssClass": "row"
         }
-      }
-    },
-    "form": {
-      "templateOptions": {
-        "cssClass": "editor-title"
       }
     }
   }
